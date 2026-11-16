@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: dim_product
+    description: "Product dimension with one row per product, identified by SKU."
+    columns:
+      - name: sku
+        description: "Unique product identifier and primary key."
+        tests:
+          - not_null
+          - unique
+
+      - name: product_name
+        description: "Name of the product."
+
+      - name: product_type
+        description: "Category or type of product."
+
+      - name: product_description
+        description: "Description of the product."
+
+  - name: fct_order_items
+    description: "One row per purchased item. Repeated purchases of the same product within an order remain separate rows."
+    columns:
+      - name: item_id
+        description: "Unique purchased-item identifier and primary key."
+        tests:
+          - not_null
+          - unique
+
+      - name: order_id
+        description: "Identifier of the order containing the purchased item."
+        tests:
+          - not_null
+
+      - name: sku
+        description: "Identifier of the purchased product, linking to dim_product.sku."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: sku
+
+  - name: fct_order_product_pairs
+    description: "One row per unordered pair of different products within an order. Each pair contributes one occurrence, regardless of repeat units purchased."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - product_a_sku
+              - product_b_sku
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "product_a_sku < product_b_sku"
+    columns:
+      - name: order_id
+        description: "Order in which both products were purchased; part of the composite primary key."
+        tests:
+          - not_null
+      - name: product_a_sku
+        description: "First product SKU in sorted order; part of the composite primary key."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: sku
+      - name: product_b_sku
+        description: "Second product SKU in sorted order; part of the composite primary key."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: sku
+      - name: pair_count
+        description: "Always one; sum by product pair to count orders containing both products. Pair counts across different pairs are not a count of distinct orders."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1]
+                quote: false
