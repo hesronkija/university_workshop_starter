@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: int_order_products
+    description: "One row per distinct product in an order. Removes repeat units before forming product pairs so each pair counts only once per order."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - sku
+    columns:
+      - name: order_id
+        description: "Identifier of the order containing the product."
+        tests:
+          - not_null
+      - name: sku
+        description: "Product identifier; appears at most once within each order."
+        tests:
+          - not_null

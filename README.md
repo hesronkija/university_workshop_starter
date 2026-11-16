@@ -1,4 +1,42 @@
 # University Workshop Starter
+
+## Product pair analysis
+
+**Question:** Which products are frequently bought together in the same order?
+
+We measure frequency as the number of distinct orders containing both products. Repeated units of a product within an order count only once. Pairs are unordered: A–B and B–A are the same pair, and products are never paired with themselves.
+
+### Model map
+
+- `dim_product`: one row per product; SKU is the primary key and supplies product names and descriptions.
+- `fct_order_items`: one row per purchased item; item ID is the primary key.
+- `int_order_products`: one row per distinct order and SKU, removing repeat units before pairing.
+- `fct_order_product_pairs`: one row per order and pair of different SKUs; these three columns form the composite primary key. `pair_count` is always 1.
+- `analyses/product_pairs.sql`: sums pair occurrences and joins `dim_product` twice to display both product names, ranking pairs by orders together.
+
+### Verified findings
+
+The analysis was executed successfully against BigQuery:
+
+| Product A | Product B | Orders containing both |
+|---|---|---:|
+| tangaroo | vanilla ice | 18 |
+| adele-ade | nutellaphone who dis? | 17 |
+| adele-ade | the krautback | 16 |
+
+**Next step:** Investigate featuring tangaroo and vanilla ice together on the menu, then test whether a bundle improves sales or margin. Co-purchase counts describe existing behavior; they do not establish that a promotion will increase sales or that the pair has unusually strong affinity after accounting for individual product popularity.
+
+### Validation and reproduction
+
+Verified build results include seven passing tests across the product dimension and item fact, three passing intermediate tests, and nine passing pair-fact tests. Tests cover key uniqueness, required identifiers, product relationships, consistent pair ordering, and a pair count of 1.
+
+```bash
+dbt build --select dim_product fct_order_items int_order_products fct_order_product_pairs
+dbt show --select product_pairs --limit 10
+```
+
+The analysis file is a query, not a persisted warehouse table. The original workshop instructions follow below.
+
 This repository is a **starting point** for an end-to-end analytics engineering project in dbt as experienced in a dbt Labs University Workshop. This repo uses the legendary [Jaffle Shop](https://github.com/dbt-labs/jaffle-shop) project for its curated sample data, but with a much smaller scope: **only seeds** are included so you can get started easily. Your job in the workshop will be to design and build your own staging layer (guided) and then the intermediate and mart layer (independently) to ultimately answer specified analytics/business question(s).
 
 ## What you’re building
