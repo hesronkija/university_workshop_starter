@@ -1,0 +1,126 @@
+version: 2
+
+sources:
+  - name: university_workshop
+    database: enhanced-victor-513801-m2
+    schema: dbt_kija_hesron_raw
+
+    tables:
+      - name: raw_customers
+        description: "Raw customer records."
+        columns:
+          - name: id
+            data_type: string
+            description: "Unique identifier for the customer."
+            tests:
+              - not_null
+              - unique
+          - name: name
+            data_type: string
+            description: "Customer's name."
+
+      - name: raw_orders
+        description: "Raw customer order records."
+        columns:
+          - name: id
+            data_type: string
+            description: "Unique identifier for the order."
+            tests:
+              - not_null
+              - unique
+          - name: customer
+            data_type: string
+            description: "Identifier of the customer who placed the order."
+          - name: ordered_at
+            data_type: datetime
+            description: "Date and time when the order was placed."
+          - name: store_id
+            data_type: string
+            description: "Identifier of the store associated with the order."
+          - name: subtotal
+            data_type: int64
+            description: "Order subtotal stored in cents."
+          - name: tax_paid
+            data_type: int64
+            description: "Tax paid stored in cents."
+          - name: order_total
+            data_type: int64
+            description: "Total order amount stored in cents."
+
+      - name: raw_items
+        description: "Raw items included in customer orders."
+        columns:
+          - name: id
+            data_type: string
+            description: "Unique identifier for the order item."
+            tests:
+              - not_null
+              - unique
+          - name: order_id
+            data_type: string
+            description: "Identifier of the order containing the item."
+          - name: sku
+            data_type: string
+            description: "Stock keeping unit identifying the product."
+
+      - name: raw_products
+        description: "Raw product records."
+        columns:
+          - name: sku
+            data_type: string
+            description: "Stock keeping unit identifying the product."
+            tests:
+              - not_null
+              - unique
+          - name: name
+            data_type: string
+            description: "Product name."
+          - name: type
+            data_type: string
+            description: "Product category or type."
+          - name: price
+            data_type: int64
+            description: "Product price stored in cents."
+          - name: description
+            data_type: string
+            description: "Description of the product."
+
+      - name: raw_stores
+        description: "Raw store records."
+        columns:
+          - name: id
+            data_type: string
+            description: "Unique identifier for the store."
+            tests:
+              - not_null
+              - unique
+          - name: name
+            data_type: string
+            description: "Store name."
+          - name: opened_at
+            data_type: datetime
+            description: "Date and time when the store opened."
+          - name: tax_rate
+            data_type: float64
+            description: "Sales tax rate for the store."
+
+      - name: raw_supplies
+        description: "Raw supply records used by the business."
+        columns:
+          - name: id
+            data_type: string
+            description: "Identifier for the supply record."
+            tests:
+              - not_null
+          - name: name
+            data_type: string
+            description: "Supply name."
+          - name: cost
+            data_type: int64
+            description: "Supply cost stored in cents."
+          - name: perishable
+            data_type: boolean
+            description: "Whether the supply is perishable."
+          - name: sku
+            data_type: string
+            description: "Stock keeping unit associated with the supply."
