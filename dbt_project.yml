@@ -1,6 +1,6 @@
 name: university_workshop
 
-profile: university_workshop
+profile: gcp_setup
 
 seed-paths: ["seeds"]
 model-paths: ["models"]
